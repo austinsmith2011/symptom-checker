@@ -49,12 +49,29 @@ You MUST respond with valid JSON matching this exact structure:
     }
   ],
   "followUpQuestions": [
-    "Targeted question to help narrow down the diagnosis"
+    {
+      "question": "The question text to ask the user",
+      "type": "yes_no" | "choice" | "scale" | "text",
+      "options": ["Only for choice type — 2-5 option strings"],
+      "scaleMin": "Only for scale type — label for low end",
+      "scaleMax": "Only for scale type — label for high end"
+    }
   ],
   "summary": "A brief, compassionate 2-3 sentence summary of the overall assessment"
 }
 
-Return 3-5 conditions ranked from most to least likely. Make follow-up questions specific and useful — things that would genuinely help distinguish between the possible conditions.`;
+Return 3-5 conditions ranked from most to least likely.
+
+FOLLOW-UP QUESTION RULES:
+- Return 3-6 follow-up questions that would genuinely help distinguish between possible conditions.
+- Choose the right question type for each:
+  - "yes_no": Simple yes/no questions (e.g. "Do you have a fever?")
+  - "choice": When there are 2-5 specific options (e.g. "What color is the discharge?" with options ["Clear", "Yellow", "Green", "Bloody"])
+  - "scale": For rating intensity on a 1-10 scale (provide scaleMin and scaleMax labels)
+  - "text": For open-ended questions that need a typed answer (e.g. "What medications have you tried so far?")
+- Prefer yes_no and choice types when possible — they're easiest for the user.
+- Only include the "options" array for "choice" type questions.
+- Only include "scaleMin"/"scaleMax" for "scale" type questions.`;
 
 app.post('/api/analyze', async (req, res) => {
   try {

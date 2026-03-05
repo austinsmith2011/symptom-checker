@@ -1,0 +1,18 @@
+{
+  "name": "symptom-checker",
+  "version": "1.0.0",
+  "description": "AI-powered symptom checker that helps identify potential conditions and treatment options",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "author": "Austin Smith",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "openai": "^6.26.0"
+  }
+}

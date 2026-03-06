@@ -6,116 +6,124 @@
   <title>Symptom Checker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 min-h-screen font-['Inter']">
-
-  <!-- Header -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-    <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-          </svg>
-        </div>
-        <h1 class="text-xl font-semibold text-slate-800">Symptom Checker</h1>
-      </div>
-      <button id="startOverBtn" class="hidden text-sm text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">
-        Start Over
-      </button>
-    </div>
-  </header>
-
-  <!-- Disclaimer Banner -->
-  <div class="bg-amber-50 border-b border-amber-200">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex items-start gap-3">
-      <svg class="w-5 h-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-      </svg>
-      <p class="text-sm text-amber-800">
-        <strong>Not a substitute for professional medical advice.</strong> This tool provides informational suggestions only. Always consult a qualified healthcare provider for medical concerns.
-      </p>
-    </div>
-  </div>
+<body class="bg-slate-50 min-h-screen font-['Lora']">
 
   <main class="max-w-5xl mx-auto px-4 py-8">
 
-    <!-- ===================== PHASE 1: INTAKE FORM ===================== -->
+    <!-- ===================== PHASE 1: WIZARD INTAKE ===================== -->
     <section id="intakeSection">
-      <div class="text-center mb-8">
-        <h2 class="text-2xl font-semibold text-slate-800 mb-2">What's going on?</h2>
-        <p class="text-slate-500">Describe your symptoms and we'll help you figure out what it might be.</p>
-      </div>
+      <form id="intakeForm">
 
-      <form id="intakeForm" class="space-y-6">
-        <!-- Primary Symptoms -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-          <label for="symptoms" class="block text-sm font-medium text-slate-700 mb-2">
-            Describe your symptoms <span class="text-red-500">*</span>
-          </label>
-          <div class="relative">
-            <textarea id="symptoms" name="symptoms" rows="4" required
-              class="w-full rounded-xl border border-slate-300 px-4 py-3 pr-14 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              placeholder="Tell me everything you're feeling — the more detail, the better. For example: I've had a headache behind my eyes for 3 days, along with a runny nose and mild fever..."></textarea>
-            <button type="button" id="micBtn" title="Click to speak"
-              class="mic-btn absolute right-3 top-3 w-10 h-10 rounded-full bg-slate-100 hover:bg-blue-50 flex items-center justify-center transition-colors cursor-pointer">
-              <svg id="micIcon" class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
-              </svg>
-              <span id="micRecordingDot" class="mic-recording-dot hidden"></span>
+        <!-- Progress Bar -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-slate-600">Step <span id="stepCurrent">1</span> of 5</span>
+            <span id="stepLabel" class="text-sm text-slate-400">Symptoms</span>
+          </div>
+          <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div id="progressBar" class="h-full bg-blue-600 rounded-full transition-all duration-500 ease-out" style="width: 20%"></div>
+          </div>
+        </div>
+
+        <!-- ===== STEP 1: Symptoms ===== -->
+        <div class="wizard-step" data-step="1">
+          <div class="text-center mb-6">
+            <img src="illustrations/step1.svg" alt="" class="wizard-illustration mx-auto mb-6">
+            <h2 class="text-2xl font-semibold text-slate-800 mb-2">What's going on?</h2>
+            <p class="text-slate-500">Tell us about your symptoms in as much detail as you can.</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <label for="symptoms" class="block text-sm font-medium text-slate-700 mb-2">
+              Describe your symptoms <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <textarea id="symptoms" name="symptoms" rows="5" required
+                class="w-full rounded-xl border border-slate-300 px-4 py-3 pb-14 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                placeholder="For example: I've had a headache behind my eyes for 3 days, along with a runny nose and mild fever..."></textarea>
+              <button type="button" id="micBtn" title="Click to speak"
+                class="mic-btn absolute right-3 bottom-3 w-10 h-10 rounded-full bg-slate-100 hover:bg-blue-50 flex items-center justify-center transition-colors cursor-pointer">
+                <svg id="micIcon" class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                </svg>
+                <span id="micRecordingDot" class="mic-recording-dot hidden"></span>
+              </button>
+            </div>
+            <p id="micStatus" class="hidden text-xs text-blue-600 mt-2 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-red-500 recording-pulse"></span>
+              Listening... speak now
+            </p>
+          </div>
+          <div class="flex justify-end mt-6">
+            <button type="button" class="wizard-next bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-xl transition-colors cursor-pointer">
+              Next
             </button>
           </div>
-          <p id="micStatus" class="hidden text-xs text-blue-600 mt-2 flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-red-500 recording-pulse"></span>
-            Listening... speak now
-          </p>
         </div>
 
-        <!-- Basic Info -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-          <h3 class="text-base font-medium text-slate-700 mb-4">Basic Information</h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <label for="age" class="block text-sm text-slate-500 mb-1">Age</label>
-              <input type="number" id="age" name="age" min="0" max="120"
-                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g. 35">
+        <!-- ===== STEP 2: About You ===== -->
+        <div class="wizard-step hidden" data-step="2">
+          <div class="text-center mb-6">
+            <img src="illustrations/step2.svg" alt="" class="wizard-illustration mx-auto mb-6">
+            <h2 class="text-2xl font-semibold text-slate-800 mb-2">About You</h2>
+            <p class="text-slate-500">A little background helps us give better suggestions.</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label for="age" class="block text-sm text-slate-500 mb-1">Age</label>
+                <input type="number" id="age" name="age" min="0" max="120"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. 35">
+              </div>
+              <div>
+                <label for="sex" class="block text-sm text-slate-500 mb-1">Sex</label>
+                <select id="sex" name="sex"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="">Select...</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="height" class="block text-sm text-slate-500 mb-1">Height</label>
+                <input type="text" id="height" name="height"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. 5'10&quot;">
+              </div>
+              <div>
+                <label for="weight" class="block text-sm text-slate-500 mb-1">Weight</label>
+                <input type="text" id="weight" name="weight"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. 170 lbs">
+              </div>
             </div>
-            <div>
-              <label for="sex" class="block text-sm text-slate-500 mb-1">Sex</label>
-              <select id="sex" name="sex"
-                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                <option value="">Select...</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div>
-              <label for="height" class="block text-sm text-slate-500 mb-1">Height</label>
-              <input type="text" id="height" name="height"
-                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g. 5'10&quot;">
-            </div>
-            <div>
-              <label for="weight" class="block text-sm text-slate-500 mb-1">Weight</label>
-              <input type="text" id="weight" name="weight"
-                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g. 170 lbs">
-            </div>
+          </div>
+          <div class="flex justify-between mt-6">
+            <button type="button" class="wizard-back text-slate-500 hover:text-slate-700 font-medium px-6 py-3 rounded-xl transition-colors cursor-pointer">
+              Back
+            </button>
+            <button type="button" class="wizard-next bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-xl transition-colors cursor-pointer">
+              Next
+            </button>
           </div>
         </div>
 
-        <!-- Symptom Details -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-          <h3 class="text-base font-medium text-slate-700 mb-4">Symptom Details</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- ===== STEP 3: Symptom Details ===== -->
+        <div class="wizard-step hidden" data-step="3">
+          <div class="text-center mb-6">
+            <img src="illustrations/step3.svg" alt="" class="wizard-illustration mx-auto mb-6">
+            <h2 class="text-2xl font-semibold text-slate-800 mb-2">Symptom Details</h2>
+            <p class="text-slate-500">Help us understand the specifics.</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
             <div>
               <label for="duration" class="block text-sm text-slate-500 mb-1">How long have you had these symptoms?</label>
               <input type="text" id="duration" name="duration"
-                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. 3 days, 2 weeks">
             </div>
             <div>
@@ -131,72 +139,84 @@
             <div>
               <label for="bodyLocation" class="block text-sm text-slate-500 mb-1">Where on your body?</label>
               <input type="text" id="bodyLocation" name="bodyLocation"
-                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g. chest, lower back, head">
             </div>
           </div>
+          <div class="flex justify-between mt-6">
+            <button type="button" class="wizard-back text-slate-500 hover:text-slate-700 font-medium px-6 py-3 rounded-xl transition-colors cursor-pointer">
+              Back
+            </button>
+            <button type="button" class="wizard-next bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-xl transition-colors cursor-pointer">
+              Next
+            </button>
+          </div>
         </div>
 
-        <!-- Medical History (collapsible) -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <button type="button" id="historyToggle"
-            class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors">
-            <h3 class="text-base font-medium text-slate-700">Medical History</h3>
-            <svg id="historyChevron" class="w-5 h-5 text-slate-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </button>
-          <div id="historyPanel" class="hidden px-6 pb-6">
+        <!-- ===== STEP 4: Medical History ===== -->
+        <div class="wizard-step hidden" data-step="4">
+          <div class="text-center mb-6">
+            <img src="illustrations/step4.svg" alt="" class="wizard-illustration mx-auto mb-6">
+            <h2 class="text-2xl font-semibold text-slate-800 mb-2">Medical History</h2>
+            <p class="text-slate-500">Any relevant background we should know about?</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label for="preExistingConditions" class="block text-sm text-slate-500 mb-1">Pre-existing conditions</label>
                 <input type="text" id="preExistingConditions" name="preExistingConditions"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. diabetes, asthma">
               </div>
               <div>
                 <label for="medications" class="block text-sm text-slate-500 mb-1">Current medications</label>
                 <input type="text" id="medications" name="medications"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. ibuprofen, metformin">
               </div>
               <div>
                 <label for="allergies" class="block text-sm text-slate-500 mb-1">Allergies</label>
                 <input type="text" id="allergies" name="allergies"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. penicillin, peanuts">
               </div>
               <div>
                 <label for="recentTravel" class="block text-sm text-slate-500 mb-1">Recent travel</label>
                 <input type="text" id="recentTravel" name="recentTravel"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g. Mexico last week">
               </div>
-              <div class="md:col-span-2">
-                <label for="familyHistory" class="block text-sm text-slate-500 mb-1">Family medical history</label>
-                <input type="text" id="familyHistory" name="familyHistory"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g. heart disease, cancer in family">
-              </div>
             </div>
+            <div>
+              <label for="familyHistory" class="block text-sm text-slate-500 mb-1">Family medical history</label>
+              <input type="text" id="familyHistory" name="familyHistory"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g. heart disease, cancer in family">
+            </div>
+          </div>
+          <div class="flex justify-between mt-6">
+            <button type="button" class="wizard-back text-slate-500 hover:text-slate-700 font-medium px-6 py-3 rounded-xl transition-colors cursor-pointer">
+              Back
+            </button>
+            <button type="button" class="wizard-next bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-xl transition-colors cursor-pointer">
+              Next
+            </button>
           </div>
         </div>
 
-        <!-- Lifestyle (collapsible) -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <button type="button" id="lifestyleToggle"
-            class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 transition-colors">
-            <h3 class="text-base font-medium text-slate-700">Lifestyle Factors</h3>
-            <svg id="lifestyleChevron" class="w-5 h-5 text-slate-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </button>
-          <div id="lifestylePanel" class="hidden px-6 pb-6">
+        <!-- ===== STEP 5: Lifestyle ===== -->
+        <div class="wizard-step hidden" data-step="5">
+          <div class="text-center mb-6">
+            <img src="illustrations/step5.svg" alt="" class="wizard-illustration mx-auto mb-6">
+            <h2 class="text-2xl font-semibold text-slate-800 mb-2">Lifestyle</h2>
+            <p class="text-slate-500">Almost done — just a few lifestyle questions.</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label for="smoking" class="block text-sm text-slate-500 mb-1">Smoking</label>
                 <select id="smoking" name="smoking"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                   <option value="">Select...</option>
                   <option value="Never">Never</option>
                   <option value="Former smoker">Former smoker</option>
@@ -206,7 +226,7 @@
               <div>
                 <label for="alcohol" class="block text-sm text-slate-500 mb-1">Alcohol use</label>
                 <select id="alcohol" name="alcohol"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                   <option value="">Select...</option>
                   <option value="None">None</option>
                   <option value="Occasional">Occasional</option>
@@ -217,7 +237,7 @@
               <div>
                 <label for="exercise" class="block text-sm text-slate-500 mb-1">Exercise level</label>
                 <select id="exercise" name="exercise"
-                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                   <option value="">Select...</option>
                   <option value="Sedentary">Sedentary</option>
                   <option value="Light">Light</option>
@@ -227,13 +247,17 @@
               </div>
             </div>
           </div>
+          <div class="flex justify-between mt-6">
+            <button type="button" class="wizard-back text-slate-500 hover:text-slate-700 font-medium px-6 py-3 rounded-xl transition-colors cursor-pointer">
+              Back
+            </button>
+            <button type="submit" id="analyzeBtn"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-xl transition-colors cursor-pointer text-base">
+              Analyze My Symptoms
+            </button>
+          </div>
         </div>
 
-        <!-- Submit -->
-        <button type="submit" id="analyzeBtn"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 rounded-2xl transition-colors text-lg shadow-sm cursor-pointer">
-          Analyze My Symptoms
-        </button>
       </form>
     </section>
 
@@ -248,6 +272,13 @@
 
     <!-- ===================== PHASE 2: RESULTS ===================== -->
     <section id="resultsSection" class="hidden space-y-6">
+
+      <!-- Start Over -->
+      <div class="flex justify-end">
+        <button id="startOverBtn" class="hidden text-sm text-slate-500 hover:text-blue-600 transition-colors cursor-pointer">
+          Start Over
+        </button>
+      </div>
 
       <!-- Emergency Banner -->
       <div id="emergencyBanner" class="hidden rounded-2xl p-6 border-2">

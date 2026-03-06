@@ -16,26 +16,70 @@ function showSection(section) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// --- Collapsible Panels ---
-function setupCollapsible(toggleId, panelId, chevronId) {
-  const toggle = $(`#${toggleId}`);
-  const panel = $(`#${panelId}`);
-  const chevron = $(`#${chevronId}`);
-  toggle.addEventListener('click', () => {
-    const open = !panel.classList.contains('hidden');
-    panel.classList.toggle('hidden');
-    chevron.style.transform = open ? '' : 'rotate(180deg)';
-  });
+// --- Wizard Navigation ---
+const STEP_LABELS = ['Symptoms', 'About You', 'Details', 'History', 'Lifestyle'];
+const TOTAL_STEPS = 5;
+let currentStep = 1;
+
+function goToStep(n) {
+  if (n < 1 || n > TOTAL_STEPS) return;
+
+  const outgoing = $(`.wizard-step[data-step="${currentStep}"]`);
+  const incoming = $(`.wizard-step[data-step="${n}"]`);
+  if (!outgoing || !incoming) return;
+
+  const direction = n > currentStep ? 'left' : 'right';
+  outgoing.classList.add(`slide-out-${direction}`);
+
+  setTimeout(() => {
+    outgoing.classList.add('hidden');
+    outgoing.classList.remove(`slide-out-${direction}`);
+
+    incoming.classList.remove('hidden');
+    incoming.classList.add(`slide-in-${direction}`);
+
+    setTimeout(() => incoming.classList.remove(`slide-in-${direction}`), 300);
+  }, 200);
+
+  currentStep = n;
+  $('#stepCurrent').textContent = n;
+  $('#stepLabel').textContent = STEP_LABELS[n - 1];
+  $('#progressBar').style.width = `${(n / TOTAL_STEPS) * 100}%`;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-setupCollapsible('historyToggle', 'historyPanel', 'historyChevron');
-setupCollapsible('lifestyleToggle', 'lifestylePanel', 'lifestyleChevron');
+
+function nextStep() {
+  if (currentStep === 1) {
+    const symptoms = $('#symptoms').value.trim();
+    if (!symptoms) {
+      $('#symptoms').focus();
+      $('#symptoms').classList.add('ring-2', 'ring-red-400');
+      setTimeout(() => $('#symptoms').classList.remove('ring-2', 'ring-red-400'), 2000);
+      return;
+    }
+  }
+  if (isRecording) stopRecording();
+  goToStep(currentStep + 1);
+}
+
+function prevStep() {
+  goToStep(currentStep - 1);
+}
+
+$$('.wizard-next').forEach(btn => btn.addEventListener('click', nextStep));
+$$('.wizard-back').forEach(btn => btn.addEventListener('click', prevStep));
 
 // --- Severity Slider ---
 const severitySlider = $('#severity');
 const severityValue = $('#severityValue');
-severitySlider.addEventListener('input', () => {
+function updateSliderFill() {
+  const pct = ((severitySlider.value - severitySlider.min) / (severitySlider.max - severitySlider.min)) * 100;
+  severitySlider.style.setProperty('--val', pct + '%');
   severityValue.textContent = severitySlider.value;
-});
+}
+severitySlider.addEventListener('input', updateSliderFill);
+updateSliderFill();
 
 // --- Voice Input (Web Speech API) ---
 const micBtn = $('#micBtn');
@@ -74,23 +118,16 @@ if (SpeechRecognition) {
   };
 
   recognition.onend = () => {
-    if (isRecording) {
-      recognition.start();
-    }
+    if (isRecording) recognition.start();
   };
 
   recognition.onerror = (event) => {
-    if (event.error !== 'no-speech' && event.error !== 'aborted') {
-      stopRecording();
-    }
+    if (event.error !== 'no-speech' && event.error !== 'aborted') stopRecording();
   };
 
   micBtn.addEventListener('click', () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
+    if (isRecording) stopRecording();
+    else startRecording();
   });
 } else {
   micBtn.classList.add('hidden');
@@ -124,6 +161,13 @@ $('#startOverBtn').addEventListener('click', () => {
   severityValue.textContent = '5';
   $('#startOverBtn').classList.add('hidden');
   if (isRecording) stopRecording();
+  currentStep = 1;
+  $$('.wizard-step').forEach((s, i) => {
+    s.classList.toggle('hidden', i !== 0);
+  });
+  $('#stepCurrent').textContent = '1';
+  $('#stepLabel').textContent = STEP_LABELS[0];
+  $('#progressBar').style.width = '20%';
   showSection(intakeSection);
 });
 
@@ -216,7 +260,6 @@ async function sendFollowUp() {
 function collectFollowUpAnswers() {
   const parts = [];
   $$('[data-question-id]').forEach(card => {
-    const qid = card.dataset.questionId;
     const question = card.dataset.questionText;
     const type = card.dataset.questionType;
     let answer = '';
@@ -232,9 +275,7 @@ function collectFollowUpAnswers() {
       if (input) answer = input.value.trim();
     }
 
-    if (answer) {
-      parts.push(`Q: ${question}\nA: ${answer}`);
-    }
+    if (answer) parts.push(`Q: ${question}\nA: ${answer}`);
   });
 
   if (!parts.length) return null;
@@ -338,7 +379,7 @@ function renderConditions(conditions) {
           </div>
         </div>
         <div class="flex items-center gap-3 shrink-0 ml-4">
-          <span class="text-xs font-medium px-2.5 py-1 rounded-full ${badge}">${esc(cond.likelihood)} likelihood</span>
+          <span class="text-xs font-medium px-2.5 py-1 rounded-full ${badge}">${esc(cond.likelihood.charAt(0).toUpperCase() + cond.likelihood.slice(1))} likelihood</span>
           <svg class="condition-chevron w-5 h-5 text-slate-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
@@ -464,7 +505,6 @@ function renderFollowUpQuestions(questions) {
     container.appendChild(card);
   });
 
-  // Wire up option button selection (yes_no + choice)
   container.querySelectorAll('.followup-option-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const siblings = btn.parentElement.querySelectorAll('.followup-option-btn');
@@ -473,7 +513,6 @@ function renderFollowUpQuestions(questions) {
     });
   });
 
-  // Wire up scale sliders
   container.querySelectorAll('input[type="range"]').forEach(slider => {
     const label = slider.parentElement.querySelector('.followup-scale-value');
     slider.addEventListener('input', () => {
@@ -484,11 +523,8 @@ function renderFollowUpQuestions(questions) {
 
 function normalizeQuestions(questions) {
   if (!questions || !questions.length) return [];
-
   return questions.map(q => {
-    if (typeof q === 'string') {
-      return { question: q, type: 'text' };
-    }
+    if (typeof q === 'string') return { question: q, type: 'text' };
     return {
       question: q.question || '',
       type: q.type || 'text',
